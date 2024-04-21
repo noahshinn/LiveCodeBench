@@ -1,3 +1,7 @@
+# Adapted from LiveCodeBench
+
+Original README below:
+
 # LiveCodeBench
 Official repository for the paper "LiveCodeBench: Holistic and Contamination Free Evaluation of Large Language Models for Code"
 
@@ -48,10 +52,10 @@ For running the inference, please provide the `model_name` based on the [./lcb_r
 The scenario (here `codegeneration`) can be used to specify the scenario for the model.
 
 ```bash
-python -m lcb_runner.runner.main --model {model_name} --scenario codegeneration
+python -m run --model {model_name} --scenario codegeneration
 ```
 
-Additionally, `--use_cache` flag can be used to cache the generated outputs and `--continue_existing` flag can be used to use the existing dumped results. In case you wish to use model from a local path, you can additionally provide `--local_model_path` flag with the path to the model. We use `n=10` and `temperature=0.2` for generation. Please check the [./lcb_runner/runner/parser.py](./lcb_runner/runner/parser.py) file for more details on the flags.
+Additionally, `--use_cache` flag can be used to cache the generated outputs and `--continue_existing` flag can be used to use the existing dumped results. In case you wish to use model from a local path, you can additionally provide `--local_model_path` flag with the path to the model. We use `n=10` and `temperature=0.2` for generation. Please check the [./parser.py](./parser.py) file for more details on the flags.
 
 For closed API models,  `--multiprocess` flag can be used to parallelize queries to API servers (adjustable according to rate limits).
 
@@ -62,7 +66,7 @@ We use a modified version of the checker released with the [`apps` benchmark](ht
 
 
 ```bash
-python -m lcb_runner.runner.main --model {model_name} --scenario codegeneration --evaluate
+python -m run --model {model_name} --scenario codegeneration --evaluate
 ```
 
 Note that time limits can cause a slight (`< 0.3`) points of variation in the computation of the `pass@1` and `pass@5` metrics.
@@ -72,7 +76,7 @@ Finally, to get scores over different time windows, you can use [./lcb_runner/ev
 Particularly, you can provide `--start_date` and `--end_date` flags (using the `YYYY-MM-DD` format) to get scores over the specified time window. In our paper, to counter contamination in the DeepSeek models, we only report results on problems released after August 2023. You can replicate those evaluations using:
 
 ```bash
-python -m lcb_runner.evaluation.compute_scores --eval_all_file {saved_eval_all_file} --start_date 2023-09-01
+python -m compute_scores --eval_all_file {saved_eval_all_file} --start_date 2023-09-01
 ```
 
 **NOTE: We have pruned a large number of test cases from the orignal benchmark and created `code_generation_lite` which is set as the default benchmark offering similar performance estimation much faster. If you wish to use the original benchmark, please use the `--not_fast` flag. We are in the process of updating the leaderboard scores with this updated setting.** 
@@ -82,40 +86,40 @@ python -m lcb_runner.evaluation.compute_scores --eval_all_file {saved_eval_all_f
 For running self repair, you need to provide an additional `--codegen_n` flag that maps to the number of codes that were generated during code generation. Additionally, the `--temperature` flag is used to resolve the old code generation eval file which must be present in the `output` directory. 
 
 ```bash
-python -m lcb_runner.runner.main --model {model_name --scenario selfrepair --codegen_n {num_codes_codegen} --n 1 # only n=1 supported
+python -m run --model {model_name --scenario selfrepair --codegen_n {num_codes_codegen} --n 1 # only n=1 supported
 ```
 
 In case you generated metadata with previour version of the codebase, you might get missing keys exception. 
 You can run the following command to rerun the metadata generation
 
 ```bash
-python -m lcb_runner.runner.main --model {model_name} --scenario selfrepair --evaluate --continue_existing
+python -m run --model {model_name} --scenario selfrepair --evaluate --continue_existing
 ```
 ### Test Output Prediction
 For running the test output prediction scenario you can simply run
 
 ```bash
-python -m lcb_runner.runner.main --model {model_name} --scenario testoutputprediction --evaluate
+python -m run --model {model_name} --scenario testoutputprediction --evaluate
 ```
 
 ### Code Execution
 For running the test output prediction scenario you can simply run
 
 ```bash
-python -m lcb_runner.runner.main --model {model_name} --scenario codeexecution --evaluate
+python -m run --model {model_name} --scenario codeexecution --evaluate
 ```
 
 Additionally, we support the COT setting with
 
 ```bash
-python -m lcb_runner.runner.main --model {model_name} --scenario codeexecution --cot_code_execution --evaluate
+python -m run --model {model_name} --scenario codeexecution --cot_code_execution --evaluate
 ```
 
 ## Custom Evaluation
-Alternatively, you can using [`lcb_runner/runner/custom_evaluator.py`](./lcb_runner/runner/custom_evaluator.py) to directly evaluated model generations in a custom file. The file should contain a list of model outputs, appropirately formatted for evaluation in the order of benchmark problems. 
+Alternatively, you can using [`custom_evaluator.py`](./custom_evaluator.py) to directly evaluated model generations in a custom file. The file should contain a list of model outputs, appropirately formatted for evaluation in the order of benchmark problems. 
 
 ```bash
-python -m lcb_runner.runner.custom_evaluator --custom_output_file {path_to_custom_outputs}
+python -m custom_evaluator --custom_output_file {path_to_custom_outputs}
 ```
 
 
