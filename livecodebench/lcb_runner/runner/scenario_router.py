@@ -175,11 +175,12 @@ def sort_and_extract_save_results(scenario: Scenario, save_results: list[dict]):
 
 def get_metrics(
     scenario: Scenario,
-    args,
     benchmark: list[
         CodeGenerationProblem | CodeExecutionProblem | TestOutputPredictionProblem
     ],
     combined_results,
+    num_process_evaluate: int = 1,
+    timeout: int = 6,
 ):
     if scenario == Scenario.codegeneration or scenario == Scenario.selfrepair:
         eval_samples = [instance.get_evaluation_sample() for instance in benchmark]
@@ -187,11 +188,11 @@ def get_metrics(
         metrics = codegen_metrics(
             eval_samples,
             generations,
-            num_process_evaluate=args.num_process_evaluate,
-            timeout=args.timeout,
+            num_process_evaluate=num_process_evaluate,
+            timeout=timeout,
         )
 
-    elif args.scenario == Scenario.testoutputprediction:
+    elif scenario == Scenario.testoutputprediction:
         eval_samples = [instance.get_evaluation_sample() for instance in benchmark]
         generations = [extracted for _, extracted in combined_results]
         metrics = test_output_metrics(
@@ -200,7 +201,7 @@ def get_metrics(
             k_list=[1, 5],
         )
 
-    elif args.scenario == Scenario.codeexecution:
+    elif scenario == Scenario.codeexecution:
         eval_samples = [instance.get_evaluation_sample() for instance in benchmark]
         generations = [extracted for _, extracted in combined_results]
         for g in generations:
